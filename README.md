@@ -1,6 +1,6 @@
 # Document Tracking System
 
-![Document Tracking System Logo](static/img/document.svg)
+![Document Tracking System Logo](https://cdn-icons-png.flaticon.com/512/2666/2666501.png)
 
 A secure and efficient platform for managing academic document submissions and tracking their processing status in real-time.
 
@@ -13,6 +13,10 @@ A secure and efficient platform for managing academic document submissions and t
 - [System Requirements](#system-requirements)
 - [Directory Structure](#directory-structure)
 - [Technologies Used](#technologies-used)
+- [API Documentation](#api-documentation)
+- [Security](#security)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
 - [Screenshots](#screenshots)
 - [License](#license)
 - [Support](#support)
@@ -26,14 +30,16 @@ A secure and efficient platform for managing academic document submissions and t
 - Automatic notifications for status changes
 - Profile management and document history
 - Payment status tracking
+- Document rejection feedback system
 
 ### For Administrators
 - Comprehensive dashboard with analytics
 - Application and document review system
 - User management capabilities
-- Detailed reporting with export functionality
+- Detailed reporting with export functionality (CSV, Excel, PDF)
 - System configuration and settings
 - Activity logs for audit trails
+- Batch processing of applications
 
 ## 🚀 Installation
 
