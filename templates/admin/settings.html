@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block title %}System Settings | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">System Settings</h1>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>General Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_settings') }}">
+                        <h6 class="mb-3 fw-bold">Document Requirements</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Document Type</th>
+                                        <th>Freshman</th>
+                                        <th>Transferee</th>
+                                        <th>Old Student</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Birth Certificate</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Form 138</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Good Moral Certificate</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>TOR</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Honorable Dismissal</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2x2 Photo</td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h6 class="mb-3 fw-bold">File Upload Settings</h6>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="max_file_size" class="form-label">Maximum File Size (MB)</label>
+                                    <input type="number" class="form-control" id="max_file_size" value="16" min="1" max="50">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="allowed_extensions" class="form-label">Allowed File Extensions</label>
+                                    <input type="text" class="form-control" id="allowed_extensions" value="pdf,jpg,jpeg,png">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3 fw-bold">Email Notification Settings</h6>
+                        <div class="mb-3">
+                            <label for="admin_email" class="form-label">Admin Email Address</label>
+                            <input type="email" class="form-control" id="admin_email" value="admin@example.com">
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="email_on_submission" checked>
+                            <label class="form-check-label" for="email_on_submission">
+                                Send email notification on new application submission
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="email_on_status_change" checked>
+                            <label class="form-check-label" for="email_on_status_change">
+                                Send email notification on application status changes
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" value="" id="email_on_document_rejection" checked>
+                            <label class="form-check-label" for="email_on_document_rejection">
+                                Send email notification when a document is rejected
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notification Templates</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="application_received_template" class="form-label">Application Received</label>
+                        <textarea class="form-control" id="application_received_template" rows="3">Thank you for your application. We have received your documents and will review them shortly.</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="document_rejected_template" class="form-label">Document Rejected</label>
+                        <textarea class="form-control" id="document_rejected_template" rows="3">Your {document_type} has been rejected. Reason: {feedback}. Please resubmit this document.</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="application_approved_template" class="form-label">Application Approved</label>
+                        <textarea class="form-control" id="application_approved_template" rows="3">Congratulations! Your application has been approved. You may now proceed with enrollment.</textarea>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="form-text mb-2">
+                        <strong>Available variables:</strong>
+                        <ul class="mb-0">
+                            <li>{username} - Student's username</li>
+                            <li>{document_type} - Type of document</li>
+                            <li>{feedback} - Admin's feedback</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Management</h5>
+                </div>
+                <div class="card-body">
+                    <p>Use these options with extreme caution. Data operations cannot be undone.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#backupModal">
+                            <i class="fas fa-download me-2"></i>Backup Database
+                        </button>
+                        
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#purgeDataModal">
+                            <i class="fas fa-trash-alt me-2"></i>Purge Old Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup Modal -->
+<div class="modal fade" id="backupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Database Backup</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to create a backup of the current database?</p>
+                <p>This operation will create a downloadable SQL file with all the current data.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Create Backup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Purge Data Modal -->
+<div class="modal fade" id="purgeDataModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Purge Old Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h6 class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Warning!</h6>
+                    <p>This action is irreversible! All purged data will be permanently deleted.</p>
+                </div>
+                
+                <p>Select what data you want to purge:</p>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" value="" id="purgeOldApplications">
+                    <label class="form-check-label" for="purgeOldApplications">
+                        Applications older than 1 year
+                    </label>
+                </div>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" value="" id="purgeRejectedApplications">
+                    <label class="form-check-label" for="purgeRejectedApplications">
+                        Rejected applications (all)
+                    </label>
+                </div>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" value="" id="purgeAuditLogs">
+                    <label class="form-check-label" for="purgeAuditLogs">
+                        Audit logs older than 3 months
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger">Purge Selected Data</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

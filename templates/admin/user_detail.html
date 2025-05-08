@@ -1,0 +1,521 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Users
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- User Profile -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>User Profile</h5>
+                    <span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-info{% endif %} px-3 py-2">
+                        {{ user.role|capitalize }}
+                    </span>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3 profile-picture-container" style="width: 150px; height: 150px; margin: 0 auto;">
+                        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" 
+                             class="rounded-circle" width="150" height="150" alt="Profile" 
+                             style="object-fit: cover; border: 3px solid #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.2); display: block; margin: 0 auto;">
+                    </div>
+                    <h4 class="fw-bold">{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    <div class="small text-muted mb-4">
+                        <div>Registered on: {{ user.created_at.strftime('%Y-%m-%d') }}</div>
+                        <div>Total Applications: {{ applications|length }}</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mb-3">
+                        <button class="btn btn-outline-primary" 
+                                data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                            <i class="fas fa-key me-2"></i>Reset Password
+                        </button>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-danger" 
+                                data-bs-toggle="modal" data-bs-target="#deactivateAccountModal">
+                            <i class="fas fa-user-slash me-2"></i>Deactivate Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Activity -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>User Activity</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <!-- We'll fetch the most recent audit logs for this user -->
+                        {% set user_logs = get_user_logs(user.id, 5) %}
+                        {% if user_logs %}
+                            {% for log in user_logs %}
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div>{{ log.action }}</div>
+                                        <small class="text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item text-center">
+                                <i class="fas fa-info-circle me-2"></i>No recent activity
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Contact User -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Contact User</h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="messageSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="messageSubject" placeholder="Message subject">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="messageContent" class="form-label">Message</label>
+                            <textarea class="form-control" id="messageContent" rows="3" placeholder="Write your message here..."></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="sendAsEmail" checked>
+                            <label class="form-check-label" for="sendAsEmail">
+                                Also send as email
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applications -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>User Applications ({{ applications|length }})</h5>
+                    {% if applications %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog me-1"></i> Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button class="dropdown-item text-success" type="button" data-bs-toggle="modal" data-bs-target="#approveAllModal">
+                                        <i class="fas fa-check-circle me-1"></i> Approve All Applications
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item text-info" type="button" data-bs-toggle="modal" data-bs-target="#reviewAllModal">
+                                        <i class="fas fa-search me-1"></i> Mark All for Review
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item text-danger" type="button" data-bs-toggle="modal" data-bs-target="#rejectAllModal">
+                                        <i class="fas fa-times-circle me-1"></i> Reject All Applications
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item" type="button" id="exportUserDataCSV">
+                                        <i class="fas fa-file-csv me-1"></i> Export as CSV
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item" type="button" onclick="window.print()">
+                                        <i class="fas fa-print me-1"></i> Print User Data
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if applications %}
+                        <form action="{{ url_for('bulk_application_action') }}" method="POST" id="bulkActionForm">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th width="40">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                                </div>
+                                            </th>
+                                            <th>ID</th>
+                                            <th>Date Submitted</th>
+                                            <th>Status</th>
+                                            <th>Payment</th>
+                                            <th>Documents</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for application in applications %}
+                                        <tr>
+                                            <td>
+                                                <div class="form-check">
+                                                    <input class="form-check-input application-checkbox" type="checkbox" name="application_ids" value="{{ application.id }}">
+                                                </div>
+                                            </td>
+                                            <td>#{{ application.id }}</td>
+                                            <td>{{ application.created_at.strftime('%Y-%m-%d') }}</td>
+                                            <td>
+                                                {% if application.status == 'Pending' %}
+                                                    <span class="badge bg-warning text-dark">{{ application.status }}</span>
+                                                {% elif application.status == 'Under Review' %}
+                                                    <span class="badge bg-info">{{ application.status }}</span>
+                                                {% elif application.status == 'Approved' %}
+                                                    <span class="badge bg-success">{{ application.status }}</span>
+                                                {% elif application.status == 'Rejected' %}
+                                                    <span class="badge bg-danger">{{ application.status }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ application.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if application.payment_status == 'Paid' %}
+                                                    <span class="badge bg-success">{{ application.payment_status }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">{{ application.payment_status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% set document_count = application.documents|length %}
+                                                {% set approved_count = application.documents|selectattr('status', 'equalto', 'Approved')|list|length %}
+                                                
+                                                {% if document_count > 0 %}
+                                                    <div class="progress" style="height: 5px; width: 100px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" 
+                                                            style="width: {{ (approved_count / document_count) * 100 }}%"></div>
+                                                    </div>
+                                                    <small>{{ approved_count }}/{{ document_count }} approved</small>
+                                                {% else %}
+                                                    <span class="badge bg-danger">No documents</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin_application_detail', application_id=application.id) }}" 
+                                                class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="p-3 border-top">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <label class="me-2">With selected:</label>
+                                            <select class="form-select form-select-sm" name="action" style="width: 150px">
+                                                <option value="">Choose action</option>
+                                                <option value="approve">Approve</option>
+                                                <option value="reject">Reject</option>
+                                                <option value="review">Mark for Review</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-primary ms-2">Apply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <h5>No Applications Found</h5>
+                            <p class="text-muted">This user hasn't submitted any applications yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- User Statistics -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>User Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-light h-100">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">Application Status Distribution</h6>
+                                    <div class="chart-container" style="position: relative; height: 250px; width: 100%;">
+                                        <canvas id="applicationStatusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-light h-100">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">Document Status Distribution</h6>
+                                    <div class="chart-container" style="position: relative; height: 250px; width: 100%;">
+                                        <canvas id="documentStatusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Average Document Processing Time</td>
+                                    <td>3.2 days</td>
+                                </tr>
+                                <tr>
+                                    <td>Document Rejection Rate</td>
+                                    <td>
+                                        {% set total_docs = 0 %}
+                                        {% set rejected_docs = 0 %}
+                                        {% for app in applications %}
+                                            {% for doc in app.documents %}
+                                                {% set total_docs = total_docs + 1 %}
+                                                {% if doc.status == 'Rejected' %}
+                                                    {% set rejected_docs = rejected_docs + 1 %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        
+                                        {% if total_docs > 0 %}
+                                            {{ (rejected_docs / total_docs * 100)|round(1) }}%
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Last Active</td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-key me-2"></i>Reset Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('admin_reset_password', user_id=user.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This will reset the user's password and generate a temporary one.
+                    </div>
+                    <p>Are you sure you want to reset the password for <strong>{{ user.username }}</strong>?</p>
+                    <p>A temporary password will be generated and sent to the user via notification.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Account Modal -->
+<div class="modal fade" id="deactivateAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-user-slash me-2"></i>Deactivate Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('toggle_user_active', user_id=user.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This will prevent the user from logging in to their account.
+                    </div>
+                    <p>Are you sure you want to deactivate the account for <strong>{{ user.username }}</strong>?</p>
+                    <p>The user will be notified of this action.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Deactivate Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Action Modals -->
+<div class="modal fade" id="approveAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Approve All Applications</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('bulk_application_action') }}" method="POST">
+                <div class="modal-body">
+                    <p>Are you sure you want to approve all applications for this user?</p>
+                    <p>This will mark all pending applications as <strong>Approved</strong>.</p>
+                    
+                    {% for app in applications %}
+                        <input type="hidden" name="application_ids" value="{{ app.id }}">
+                    {% endfor %}
+                    <input type="hidden" name="action" value="approve">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Approve All</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Similar modals for reject all and review all would be implemented here -->
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all checkbox functionality
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const applicationCheckboxes = document.querySelectorAll('.application-checkbox');
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                applicationCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+        
+        // Application Status Chart
+        const appStatusCtx = document.getElementById('applicationStatusChart');
+        if (appStatusCtx) {
+            // Calculate application status counts
+            let pendingCount = 0, reviewCount = 0, approvedCount = 0, rejectedCount = 0;
+            
+            {% for app in applications %}
+                {% if app.status == 'Pending' %}
+                    pendingCount++;
+                {% elif app.status == 'Under Review' %}
+                    reviewCount++;
+                {% elif app.status == 'Approved' %}
+                    approvedCount++;
+                {% elif app.status == 'Rejected' %}
+                    rejectedCount++;
+                {% endif %}
+            {% endfor %}
+            
+            new Chart(appStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Under Review', 'Approved', 'Rejected'],
+                    datasets: [{
+                        data: [pendingCount, reviewCount, approvedCount, rejectedCount],
+                        backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Document Status Chart
+        const docStatusCtx = document.getElementById('documentStatusChart');
+        if (docStatusCtx) {
+            // Calculate document status counts
+            let pendingDocs = 0, reviewDocs = 0, approvedDocs = 0, rejectedDocs = 0;
+            
+            {% for app in applications %}
+                {% for doc in app.documents %}
+                    {% if doc.status == 'Pending' %}
+                        pendingDocs++;
+                    {% elif doc.status == 'Under Review' %}
+                        reviewDocs++;
+                    {% elif doc.status == 'Approved' %}
+                        approvedDocs++;
+                    {% elif doc.status == 'Rejected' %}
+                        rejectedDocs++;
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            
+            new Chart(docStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Under Review', 'Approved', 'Rejected'],
+                    datasets: [{
+                        data: [pendingDocs, reviewDocs, approvedDocs, rejectedDocs],
+                        backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}New Application | Document Tracking System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Start a New Application</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-file-upload fa-3x text-primary mb-3"></i>
+                        <h5>Document Submission Process</h5>
+                        <p class="text-muted">Please read these instructions carefully before proceeding.</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6 class="fw-bold"><i class="fas fa-info-circle me-2"></i>Important Information:</h6>
+                        <ul class="mb-0">
+                            <li>Ensure all documents are clear and legible.</li>
+                            <li>Acceptable file formats: PDF, JPG, PNG.</li>
+                            <li>Maximum file size: 16MB per document.</li>
+                            <li>All required documents must be submitted for review.</li>
+                            <li>You can track the status of your application after submission.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Required Documents:</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-pdf text-danger me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Birth Certificate</h6>
+                                        <small class="text-muted">(PDF, JPG, PNG)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-alt text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Form 138</h6>
+                                        <small class="text-muted">(PDF, JPG, PNG)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-contract text-success me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Good Moral Certificate</h6>
+                                        <small class="text-muted">(PDF, JPG, PNG)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-invoice text-warning me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Transcript of Records</h6>
+                                        <small class="text-muted">(PDF, JPG, PNG)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-signature text-info me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Honorable Dismissal</h6>
+                                        <small class="text-muted">(PDF, JPG, PNG)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-image text-secondary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">2x2 Photo</h6>
+                                        <small class="text-muted">(JPG, PNG)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('new_application') }}">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">
+                                I confirm that I have all the required documents ready to upload.
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-arrow-right me-2"></i>Create Application & Upload Documents
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

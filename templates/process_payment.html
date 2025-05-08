@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Process Payment | Document Tracking System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Process Payment</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info">
+                        <h6 class="fw-bold"><i class="fas fa-info-circle me-2"></i>Payment Information</h6>
+                        <p class="mb-0">Please complete your payment details for application #{{ application.id }}.</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Application Details</h6>
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td>Application ID:</td>
+                                    <td><span class="badge bg-primary">#{{ application.id }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Status:</td>
+                                    <td>
+                                        {% if application.status == 'Pending' %}
+                                            <span class="badge bg-warning text-dark">{{ application.status }}</span>
+                                        {% elif application.status == 'Under Review' %}
+                                            <span class="badge bg-info">{{ application.status }}</span>
+                                        {% elif application.status == 'Approved' %}
+                                            <span class="badge bg-success">{{ application.status }}</span>
+                                        {% elif application.status == 'Rejected' %}
+                                            <span class="badge bg-danger">{{ application.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Submitted on:</td>
+                                    <td>{{ application.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Payment Information</h6>
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td>Amount Due:</td>
+                                    <td>₱ 500.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Status:</td>
+                                    <td><span class="badge bg-danger">{{ application.payment_status }}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <form action="{{ url_for('complete_payment', application_id=application.id) }}" method="POST" id="paymentForm">
+                        <div class="mb-4">
+                            <label for="paymentMethod" class="form-label fw-bold">Payment Method</label>
+                            <select class="form-select" id="paymentMethod" name="payment_method" required>
+                                <option value="">Select payment method</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+                        
+                        <div id="creditCardDetails" class="mb-4" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="cardNumber" class="form-label">Card Number</label>
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="expiryDate" class="form-label">Expiry Date</label>
+                                    <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="cvv" class="form-label">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" placeholder="XXX">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="referenceNumber" class="form-label fw-bold">Reference Number</label>
+                            <input type="text" class="form-control" id="referenceNumber" name="reference_number" placeholder="Enter reference number">
+                            <div class="form-text">Optional for cash payments</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-success w-100" id="paymentButton">
+                                    <i class="fas fa-check-circle me-2"></i>Confirm Payment
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle payment method selection
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+        const creditCardDetails = document.getElementById('creditCardDetails');
+        
+        paymentMethodSelect.addEventListener('change', function() {
+            if (this.value === 'Credit Card') {
+                creditCardDetails.style.display = 'block';
+            } else {
+                creditCardDetails.style.display = 'none';
+            }
+        });
+        
+        // Prevent double submissions
+        const form = document.getElementById('paymentForm');
+        const button = document.getElementById('paymentButton');
+        
+        form.addEventListener('submit', function() {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        });
+    });
+</script>
+{% endblock %}

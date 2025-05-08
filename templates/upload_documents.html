@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Documents | Document Tracking System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Upload Documents for Application #{{ application.id }}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info">
+                        <h6 class="fw-bold"><i class="fas fa-info-circle me-2"></i>Instructions:</h6>
+                        <ul class="mb-0">
+                            <li>Ensure all documents are clear and legible.</li>
+                            <li>Acceptable file formats: PDF, JPG, PNG.</li>
+                            <li>Maximum file size: 16MB per document.</li>
+                            <li>You can upload missing documents later if needed.</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_documents', application_id=application.id) }}">
+                        <div class="row">
+                            {% for doc_type in document_types %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 {% if doc_type in uploaded_types %}border-success{% else %}border-light{% endif %}">
+                                        <div class="card-header {% if doc_type in uploaded_types %}bg-success text-white{% else %}bg-light{% endif %}">
+                                            <h6 class="mb-0">
+                                                {% if doc_type in uploaded_types %}
+                                                    <i class="fas fa-check-circle me-2"></i>
+                                                {% endif %}
+                                                {{ doc_type }}
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            {% if doc_type in uploaded_types %}
+                                                <div class="alert alert-success mb-3">
+                                                    <small><i class="fas fa-check-circle me-2"></i>This document has been uploaded.</small>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <div class="mb-3">
+                                                <label for="{{ doc_type }}" class="form-label">
+                                                    {% if doc_type in uploaded_types %}
+                                                    Replace {{ doc_type }}:
+                                                    {% else %}
+                                                    Upload {{ doc_type }}:
+                                                    {% endif %}
+                                                </label>
+                                                <input type="file" class="form-control" id="{{ doc_type }}" name="{{ doc_type }}" 
+                                                       {% if doc_type not in uploaded_types %}required{% endif %}>
+                                                <div class="form-text">
+                                                    Accepted formats: {% if doc_type == '2x2 Photo' %}JPG, PNG{% else %}PDF, JPG, PNG{% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload me-2"></i>Upload Documents
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

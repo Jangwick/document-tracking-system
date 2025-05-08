@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-4">Document Tracking System</h1>
+            <p class="lead mb-4">
+                A secure and efficient way to submit and track your academic documents. 
+                Our system allows for real-time status updates, secure storage, and faster processing.
+            </p>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Admin Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('new_application') }}" class="btn btn-outline-primary btn-lg px-4">
+                            <i class="fas fa-file-upload me-2"></i>Submit Documents
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-6 d-flex align-items-center justify-content-center">
+            <img src="{{ url_for('static', filename='img/document.svg') }}" alt="Document Management" class="img-fluid">
+        </div>
+    </div>
+    
+    <div class="row mt-5 pt-5 text-center">
+        <h2 class="fw-bold mb-4">How It Works</h2>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="rounded-circle bg-primary text-white mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user-plus fa-2x"></i>
+                    </div>
+                    <h3 class="card-title h5 fw-bold">1. Create an Account</h3>
+                    <p class="card-text">Register with your email address and set up a secure password to get started.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="rounded-circle bg-primary text-white mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-file-upload fa-2x"></i>
+                    </div>
+                    <h3 class="card-title h5 fw-bold">2. Upload Documents</h3>
+                    <p class="card-text">Submit your required documents securely through our online portal.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="rounded-circle bg-primary text-white mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h3 class="card-title h5 fw-bold">3. Track Progress</h3>
+                    <p class="card-text">Monitor the status of your application and receive notifications about updates.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5 pt-5">
+        <div class="col-lg-6 mb-4">
+            <h2 class="fw-bold mb-4">Features</h2>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex">
+                    <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                    <div>
+                        <h5 class="mb-1">Secure Document Storage</h5>
+                        <p class="text-muted mb-0">All your documents are encrypted and stored securely.</p>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex">
+                    <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                    <div>
+                        <h5 class="mb-1">Real-time Status Updates</h5>
+                        <p class="text-muted mb-0">Track your application status at every step of the process.</p>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex">
+                    <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                    <div>
+                        <h5 class="mb-1">Automated Notifications</h5>
+                        <p class="text-muted mb-0">Receive alerts about document status changes and requirements.</p>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex">
+                    <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                    <div>
+                        <h5 class="mb-1">Payment Tracking</h5>
+                        <p class="text-muted mb-0">Monitor your enrollment payments and view history.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="col-lg-6">
+            <h2 class="fw-bold mb-4">Required Documents</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-pdf text-danger me-3 fa-2x"></i>
+                                <div>
+                                    <h5 class="mb-0">Birth Certificate</h5>
+                                    <small class="text-muted">(PDF, JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-alt text-primary me-3 fa-2x"></i>
+                                <div>
+                                    <h5 class="mb-0">Form 138</h5>
+                                    <small class="text-muted">(PDF, JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-contract text-success me-3 fa-2x"></i>
+                                <div>
+                                    <h5 class="mb-0">Good Moral Certificate</h5>
+                                    <small class="text-muted">(PDF, JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-invoice text-warning me-3 fa-2x"></i>
+                                <div>
+                                    <h5 class="mb-0">TOR</h5>
+                                    <small class="text-muted">(PDF, JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-signature text-info me-3 fa-2x"></i>
+                                <div>
+                                    <h5 class="mb-0">Honorable Dismissal</h5>
+                                    <small class="text-muted">(PDF, JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-image text-secondary me-3 fa-2x"></i>
+                                <div>
+                                    <h5 class="mb-0">2x2 Photo</h5>
+                                    <small class="text-muted">(JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

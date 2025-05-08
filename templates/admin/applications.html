@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Applications | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+        <h1 class="fw-bold mb-3 mb-lg-0">Applications Management</h1>
+        
+        <div class="btn-group">
+            <a href="{{ url_for('admin_applications') }}" class="btn {% if not request.args.get('status') %}btn-primary{% else %}btn-outline-primary{% endif %}">All</a>
+            <a href="{{ url_for('admin_applications', status='Pending') }}" class="btn {% if request.args.get('status') == 'Pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">Pending</a>
+            <a href="{{ url_for('admin_applications', status='Under Review') }}" class="btn {% if request.args.get('status') == 'Under Review' %}btn-info{% else %}btn-outline-info{% endif %}">Under Review</a>
+            <a href="{{ url_for('admin_applications', status='Approved') }}" class="btn {% if request.args.get('status') == 'Approved' %}btn-success{% else %}btn-outline-success{% endif %}">Approved</a>
+            <a href="{{ url_for('admin_applications', status='Rejected') }}" class="btn {% if request.args.get('status') == 'Rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">Rejected</a>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <h5 class="mb-3 mb-lg-0">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    {% if request.args.get('status') %}
+                        {{ request.args.get('status') }} Applications
+                    {% else %}
+                        All Applications
+                    {% endif %}
+                </h5>
+                <div class="d-flex gap-2 flex-wrap">
+                    <div class="input-group" style="width: 250px;">
+                        <input type="text" class="form-control" placeholder="Search applications..." id="applicationSearch">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-file-export me-1"></i> Export
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                            <li><a class="dropdown-item" href="#" id="exportCSV"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                            <li><a class="dropdown-item" href="#" id="exportPDF"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                            <li><a class="dropdown-item" href="#" id="exportPrint"><i class="fas fa-print me-2"></i>Print</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if applications %}
+                <form action="{{ url_for('bulk_application_action') }}" method="POST">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="applicationsTable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllApplications">
+                                        </div>
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>Submitted On</th>
+                                    <th>Updated</th>
+                                    <th>Documents</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input application-checkbox" type="checkbox" name="application_ids" value="{{ application.id }}">
+                                        </div>
+                                    </td>
+                                    <td>#{{ application.id }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_user_detail', user_id=application.user.id) }}" class="text-decoration-none">
+                                            {{ application.user.username }}
+                                        </a>
+                                    </td>
+                                    <td>{{ application.user.email }}</td>
+                                    <td>
+                                        {% if application.status == 'Pending' %}
+                                            <span class="badge bg-warning text-dark">{{ application.status }}</span>
+                                        {% elif application.status == 'Under Review' %}
+                                            <span class="badge bg-info">{{ application.status }}</span>
+                                        {% elif application.status == 'Approved' %}
+                                            <span class="badge bg-success">{{ application.status }}</span>
+                                        {% elif application.status == 'Rejected' %}
+                                            <span class="badge bg-danger">{{ application.status }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ application.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if application.payment_status == 'Paid' %}
+                                            <span class="badge bg-success">{{ application.payment_status }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ application.payment_status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ application.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ application.updated_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% set document_count = application.documents|length %}
+                                        {% set approved_count = application.documents|selectattr('status', 'equalto', 'Approved')|list|length %}
+                                        {% if document_count > 0 %}
+                                            <div class="progress" style="height: 5px; width: 100px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                    style="width: {{ (approved_count / document_count) * 100 }}%"></div>
+                                            </div>
+                                            <small>{{ approved_count }}/{{ document_count }} approved</small>
+                                        {% else %}
+                                            <span class="badge bg-danger">No documents</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a href="{{ url_for('admin_application_detail', application_id=application.id) }}" 
+                                                    class="dropdown-item">
+                                                        <i class="fas fa-eye me-1"></i> View Details
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ url_for('admin_user_detail', user_id=application.user.id) }}" 
+                                                    class="dropdown-item">
+                                                        <i class="fas fa-user me-1"></i> View Student
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item text-success set-status" 
+                                                            data-application-id="{{ application.id }}" data-status="Approved">
+                                                        <i class="fas fa-check-circle me-1"></i> Mark as Approved
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item text-info set-status" 
+                                                            data-application-id="{{ application.id }}" data-status="Under Review">
+                                                        <i class="fas fa-search me-1"></i> Mark for Review
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item text-danger set-status" 
+                                                            data-application-id="{{ application.id }}" data-status="Rejected">
+                                                        <i class="fas fa-times-circle me-1"></i> Mark as Rejected
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-3 border-top">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <label class="me-2">With selected:</label>
+                                    <select class="form-select form-select-sm" name="action" style="width: 150px">
+                                        <option value="">Choose action</option>
+                                        <option value="approve">Approve</option>
+                                        <option value="reject">Reject</option>
+                                        <option value="review">Mark for Review</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary ms-2">Apply</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                <small class="text-muted">Showing {{ applications|length }} applications</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <div class="p-4 text-center">
+                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                    <h5>No Applications Found</h5>
+                    <p class="text-muted">There are no applications that match your criteria.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Hidden form for individual status updates -->
+    <form id="statusUpdateForm" action="{{ url_for('update_application_status', application_id=0) }}" method="POST">
+        <input type="hidden" name="status" id="statusInput">
+    </form>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('applicationSearch');
+        const table = document.getElementById('applicationsTable');
+        
+        if (searchInput && table) {
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = table.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+        
+        // Select all functionality
+        const selectAllCheckbox = document.getElementById('selectAllApplications');
+        const applicationCheckboxes = document.querySelectorAll('.application-checkbox');
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                applicationCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+            });
+        }
+        
+        // Status update buttons
+        const statusButtons = document.querySelectorAll('.set-status');
+        const statusForm = document.getElementById('statusUpdateForm');
+        const statusInput = document.getElementById('statusInput');
+        
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const applicationId = this.getAttribute('data-application-id');
+                const status = this.getAttribute('data-status');
+                
+                statusInput.value = status;
+                statusForm.action = statusForm.action.replace(/\/\d+$/, `/${applicationId}`);
+                statusForm.submit();
+            });
+        });
+        
+        // Export functionality
+        document.getElementById('exportCSV').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('CSV export functionality will be implemented here');
+        });
+        
+        document.getElementById('exportPDF').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('PDF export functionality will be implemented here');
+        });
+        
+        document.getElementById('exportPrint').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.print();
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

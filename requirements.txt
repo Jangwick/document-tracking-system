@@ -1,0 +1,11 @@
+flask
+flask-sqlalchemy
+flask-login
+flask-wtf
+email_validator
+werkzeug
+pillow
+flask-mail
+pytz
+python-dotenv
+wtforms

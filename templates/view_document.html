@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}View Document | Document Tracking System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ request.referrer or url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{ document.document_type }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="text-center p-3 bg-light mb-4">
+                        {% if document.file_path.lower().endswith(('jpg', 'jpeg', 'png')) %}
+                            <img src="{{ url_for('static', filename='uploads/' + document.file_path) }}" 
+                                 class="img-fluid" alt="Document Preview">
+                        {% elif document.file_path.lower().endswith('pdf') %}
+                            <div class="p-4">
+                                <i class="fas fa-file-pdf fa-5x text-danger mb-3"></i>
+                                <h5>PDF Document</h5>
+                                <p>PDF preview not available in-browser.</p>
+                            </div>
+                        {% else %}
+                            <div class="p-4">
+                                <i class="fas fa-file fa-5x text-primary mb-3"></i>
+                                <h5>Document</h5>
+                                <p>Document preview not available.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('static', filename='uploads/' + document.file_path) }}" 
+                           class="btn btn-primary" target="_blank" download>
+                            <i class="fas fa-download me-2"></i>Download Document
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h5 class="mb-3">Document Details</h5>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Document Type:</span>
+                            <span class="fw-bold">{{ document.document_type }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Status:</span>
+                            <span>
+                                {% if document.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark">{{ document.status }}</span>
+                                {% elif document.status == 'Under Review' %}
+                                    <span class="badge bg-info">{{ document.status }}</span>
+                                {% elif document.status == 'Approved' %}
+                                    <span class="badge bg-success">{{ document.status }}</span>
+                                {% elif document.status == 'Rejected' %}
+                                    <span class="badge bg-danger">{{ document.status }}</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Uploaded On:</span>
+                            <span>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Last Updated:</span>
+                            <span>{{ document.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span>File Name:</span>
+                            <div class="text-break mt-1">{{ document.file_path }}</div>
+                        </li>
+                    </ul>
+                    
+                    {% if document.feedback %}
+                        <div class="card border-info mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0"><i class="fas fa-comments me-2"></i>Admin Feedback</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0">{{ document.feedback }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if document.status == 'Rejected' %}
+                        <div class="alert alert-danger">
+                            <h6 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i>Document Rejected</h6>
+                            <p class="mb-0">Please check the feedback and resubmit this document with the necessary corrections.</p>
+                        </div>
+                    {% elif document.status == 'Approved' %}
+                        <div class="alert alert-success">
+                            <h6 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Document Approved</h6>
+                            <p class="mb-0">This document has been verified and approved by the registrar's office.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

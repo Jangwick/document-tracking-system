@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block title %}Application Details | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+            <a href="{{ request.referrer or url_for('admin_applications') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Applications
+            </a>
+        </div>
+        <div class="mt-2 mt-sm-0">
+            <div class="btn-group">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                    <i class="fas fa-check-circle me-2"></i>Approve
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                    <i class="fas fa-times-circle me-2"></i>Reject
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Application Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 d-flex justify-content-between">
+                        <h6 class="fw-bold mb-0">Application ID:</h6>
+                        <span>#{{ application.id }}</span>
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between">
+                        <h6 class="fw-bold mb-0">Date Submitted:</h6>
+                        <span>{{ application.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between">
+                        <h6 class="fw-bold mb-0">Last Updated:</h6>
+                        <span>{{ application.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <form action="{{ url_for('update_application_status', application_id=application.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="status" class="form-label fw-bold">Application Status:</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Pending" {% if application.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="Under Review" {% if application.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                                <option value="Approved" {% if application.status == 'Approved' %}selected{% endif %}>Approved</option>
+                                <option value="Rejected" {% if application.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="payment_status" class="form-label fw-bold">Payment Status:</label>
+                            <select class="form-select" id="payment_status" name="payment_status">
+                                <option value="Unpaid" {% if application.payment_status == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+                                <option value="Paid" {% if application.payment_status == 'Paid' %}selected{% endif %}>Paid</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Status
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Student Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Student Information</h5>
+                    <a href="{{ url_for('admin_user_detail', user_id=application.user.id) }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-external-link-alt me-1"></i> View Full Profile
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <img src="{{ url_for('static', filename='uploads/' + application.user.profile_picture) }}" 
+                             class="rounded-circle mb-3" width="80" height="80" alt="Profile">
+                        <h5>{{ application.user.username }}</h5>
+                        <p class="text-muted">{{ application.user.email }}</p>
+                    </div>
+                    
+                    <div class="mb-2 d-flex justify-content-between">
+                        <h6 class="fw-bold mb-0">Registered On:</h6>
+                        <span>{{ application.user.created_at.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                    
+                    <div class="mb-2 d-flex justify-content-between">
+                        <h6 class="fw-bold mb-0">Total Applications:</h6>
+                        <span>{{ application.user.applications|length }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Application History -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Application Timeline</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Application Created</div>
+                                <small class="text-muted">By {{ application.user.username }}</small>
+                            </div>
+                            <span class="text-muted">{{ application.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        
+                        <!-- Mock timeline entries - would be replaced with actual log data -->
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Documents Submitted</div>
+                                <small class="text-muted">{{ documents|length }} documents uploaded</small>
+                            </div>
+                            <span class="text-muted">{{ application.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        
+                        {% if application.status != 'Pending' %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Status Updated</div>
+                                <small class="text-muted">Changed to {{ application.status }}</small>
+                            </div>
+                            <span class="text-muted">{{ application.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if application.payment_status == 'Paid' %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Payment Received</div>
+                                <small class="text-muted">Marked as paid</small>
+                            </div>
+                            <span class="text-muted">{{ application.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Documents -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Document Verification</h5>
+                    {% if documents %}
+                    <form action="{{ url_for('bulk_document_action') }}" method="POST" id="bulkDocumentForm">
+                        <div class="btn-group">
+                            <button type="submit" name="action" value="approve" class="btn btn-sm btn-light text-success">
+                                <i class="fas fa-check-circle me-1"></i>Approve All
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-sm btn-light text-danger">
+                                <i class="fas fa-times-circle me-1"></i>Reject All
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if documents %}
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Use the checkboxes to select multiple documents and perform bulk actions.
+                        </div>
+                        
+                        <div class="row">
+                            {% for document in documents %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-header">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="form-check">
+                                                    <input class="form-check-input document-checkbox" type="checkbox" 
+                                                           form="bulkDocumentForm" name="document_ids" value="{{ document.id }}">
+                                                    <label class="form-check-label fw-bold" for="document-{{ document.id }}">
+                                                        {{ document.document_type }}
+                                                    </label>
+                                                </div>
+                                                <span class="badge 
+                                                    {% if document.status == 'Pending' %}bg-warning text-dark
+                                                    {% elif document.status == 'Under Review' %}bg-info
+                                                    {% elif document.status == 'Approved' %}bg-success
+                                                    {% elif document.status == 'Rejected' %}bg-danger
+                                                    {% endif %}">
+                                                    {{ document.status }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="text-center mb-3">
+                                                {% if document.file_path.lower().endswith(('jpg', 'jpeg', 'png')) %}
+                                                    <img src="{{ url_for('static', filename='uploads/' + document.file_path) }}" 
+                                                         class="img-fluid mb-2" style="max-height: 150px;" alt="Document Preview">
+                                                {% else %}
+                                                    <div class="p-3 bg-light text-center mb-2">
+                                                        <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                                        <p class="mt-2 mb-0">PDF Document</p>
+                                                    </div>
+                                                {% endif %}
+                                                <div class="d-grid">
+                                                    <a href="{{ url_for('static', filename='uploads/' + document.file_path) }}" 
+                                                       target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-external-link-alt me-1"></i>View Full Document
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-2 small">
+                                                <strong>Uploaded:</strong> {{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') }}
+                                            </div>
+                                            
+                                            <div class="mb-3 small">
+                                                <strong>Current Status:</strong> 
+                                                {% if document.status == 'Pending' %}
+                                                    <span class="badge bg-warning text-dark">{{ document.status }}</span>
+                                                {% elif document.status == 'Under Review' %}
+                                                    <span class="badge bg-info">{{ document.status }}</span>
+                                                {% elif document.status == 'Approved' %}
+                                                    <span class="badge bg-success">{{ document.status }}</span>
+                                                {% elif document.status == 'Rejected' %}
+                                                    <span class="badge bg-danger">{{ document.status }}</span>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <form action="{{ url_for('update_document_status', document_id=document.id) }}" method="POST">
+                                                <div class="mb-3">
+                                                    <label for="status_{{ document.id }}" class="form-label">Update Status:</label>
+                                                    <select class="form-select form-select-sm" id="status_{{ document.id }}" name="status">
+                                                        <option value="Pending" {% if document.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                                        <option value="Under Review" {% if document.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                                                        <option value="Approved" {% if document.status == 'Approved' %}selected{% endif %}>Approved</option>
+                                                        <option value="Rejected" {% if document.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="feedback_{{ document.id }}" class="form-label">Feedback:</label>
+                                                    <textarea class="form-control form-control-sm" id="feedback_{{ document.id }}" 
+                                                              name="feedback" rows="2">{{ document.feedback or '' }}</textarea>
+                                                </div>
+                                                
+                                                <div class="d-grid">
+                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-save me-1"></i>Update Status
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center p-5">
+                            <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+                            <h5>No Documents Uploaded</h5>
+                            <p class="text-muted">This application doesn't have any documents uploaded yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Communication with Student -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-comment-alt me-2"></i>Send Message to Student</h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="messageSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="messageSubject" placeholder="Subject of your message">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="messageContent" class="form-label">Message</label>
+                            <textarea class="form-control" id="messageContent" rows="4" placeholder="Write your message here..."></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="sendEmailCopy" checked>
+                            <label class="form-check-label" for="sendEmailCopy">
+                                Also send as email to {{ application.user.email }}
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Approve Application</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('update_application_status', application_id=application.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p>Are you sure you want to approve this application?</p>
+                        <p>This will mark the application status as <strong>Approved</strong> and notify the student.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="approvalMessage" class="form-label">Additional message to student (optional):</label>
+                        <textarea class="form-control" id="approvalMessage" name="feedback" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="approveAllDocs">
+                        <label class="form-check-label" for="approveAllDocs">
+                            Also approve all pending documents
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="status" value="Approved">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Approve Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Reject Application</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('update_application_status', application_id=application.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p>Are you sure you want to reject this application?</p>
+                        <p>This will mark the application status as <strong>Rejected</strong> and notify the student.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="rejectionReason" class="form-label">Reason for rejection (will be sent to student):</label>
+                        <textarea class="form-control" id="rejectionReason" name="feedback" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="status" value="Rejected">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all documents checkbox
+        const documentCheckboxes = document.querySelectorAll('.document-checkbox');
+        const selectAllDocuments = document.getElementById('selectAllDocuments');
+        
+        if (selectAllDocuments) {
+            selectAllDocuments.addEventListener('change', function() {
+                const isChecked = this.checked;
+                documentCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+            });
+        }
+        
+        // Approve all documents when approving application
+        const approveAllDocs = document.getElementById('approveAllDocs');
+        const approveForm = document.querySelector('#approveModal form');
+        
+        if (approveAllDocs && approveForm) {
+            approveForm.addEventListener('submit', function(e) {
+                if (approveAllDocs.checked) {
+                    // Add logic to also approve all documents
+                    // This would require additional backend functionality
+                    // For now, we'll just show a message
+                    alert('All documents will be approved along with the application');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
